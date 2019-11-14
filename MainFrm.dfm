@@ -32,16 +32,26 @@ object MainForm: TMainForm
   end
   object btnCancel: TButton
     Left = 344
-    Top = 32
+    Top = 64
     Width = 75
     Height = 25
     Caption = 'Cancel'
     TabOrder = 2
     OnClick = btnCancelClick
   end
+  object btnForEach: TButton
+    Left = 344
+    Top = 32
+    Width = 75
+    Height = 25
+    Caption = 'StartForEach'
+    TabOrder = 3
+    OnClick = btnForEachClick
+  end
   object tmr1: TTimer
+    Enabled = False
     OnTimer = tmr1Timer
     Left = 344
-    Top = 64
+    Top = 112
   end
 end

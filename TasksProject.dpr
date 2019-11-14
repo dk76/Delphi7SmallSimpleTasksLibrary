@@ -3,7 +3,8 @@ program TasksProject;
 uses
   Forms,
   MainFrm in 'MainFrm.pas' {MainForm},
-  Tasks in 'Tasks.pas';
+  Tasks in 'Tasks.pas',
+  Parallel in 'Parallel.pas';
 
 {$R *.res}
 

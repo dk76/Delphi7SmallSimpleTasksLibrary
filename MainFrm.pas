@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, DB, ADODB, Grids, DBGrids, Tasks, ExtCtrls;
+  Dialogs, StdCtrls, DB, ADODB, Grids, DBGrids, Tasks, ExtCtrls, Parallel;
 
 type
 //------------------------------------------------------------------------------
@@ -13,9 +13,11 @@ type
     editText1: TMemo;
     tmr1: TTimer;
     btnCancel: TButton;
+    btnForEach: TButton;
     procedure btnStartTasksClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
     procedure tmr1Timer(Sender: TObject);
+    procedure btnForEachClick(Sender: TObject);
   end;
 
 var
@@ -66,6 +68,34 @@ begin
    r.Free;
 end;
 
+//------------------------------------------------------------------------------
+procedure CallbackForEach(o:TObject);
+var
+  r:TStringResult;
+begin
+   r:=(o as TTaskParameter).o as TStringResult;
+   r.task:=(o as TTaskParameter).task;
+   MainForm.editText1.Lines.Add('Callback ForEach'+r.result);
+   MainForm.editText1.Lines.Add('thread id='+IntToStr(GetCurrentThreadId)+' ');
+   if(r.task.Status=tsException)then
+     MainForm.editText1.Lines.Add('Exception ');
+   r.task.Free;
+   r.Free;
+end;
+
+
+//------------------------------------------------------------------------------
+procedure ForEachProc(i:integer;o:TObject);
+var
+  s:TStringResult;
+begin
+
+   s:=o as TStringResult;
+
+   s.result:=s.result+'='+IntToStr(i)+' thread id='+IntToStr(GetCurrentThreadId)+' ';
+   Sleep(10);
+
+end;
 
 //------------------------------------------------------------------------------
 procedure TMainForm.btnStartTasksClick(Sender: TObject);
@@ -74,6 +104,8 @@ var
   i,j:integer;
   data:TStringResult;
 begin
+  tmr1.Enabled:=true;
+
   for i:=0 to 10 do
   begin
     editText1.Lines.Add('Start Task'+IntToStr(i));
@@ -105,6 +137,26 @@ end;
 procedure TMainForm.tmr1Timer(Sender: TObject);
 begin
   btnStartTasksClick(Sender);
+end;
+
+procedure TMainForm.btnForEachClick(Sender: TObject);
+var
+  l:TList;
+  i:integer;
+  s:TStringResult;
+begin
+
+
+  l:=TList.Create;
+  for i:=0 to 100 do
+  begin
+     s:=TStringResult.Create;
+     s.result:='Object #'+IntToStr(i);
+     l.Add(s);
+  end;
+
+  Parallel.ForEach(l,ForEachProc,callbackForEach);
+
 end;
 
 end.
